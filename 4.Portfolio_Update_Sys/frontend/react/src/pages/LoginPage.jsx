@@ -41,7 +41,7 @@ const Login = () => {
     function delay(ms) {
         return new Promise((resolve) => setTimeout(resolve, ms));
     }
-// TODO MAKE IT RESPONSIVE, TO MOBILE
+
     return (
         <div
         className="sign-in__wrapper"
