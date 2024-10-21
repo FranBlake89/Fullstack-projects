@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { Form, Button, Alert } from "react-bootstrap";
 import "../assets/styles/login.css";
 
 import BackgroundImage from "../assets/images/background.jpg";
@@ -7,6 +6,8 @@ import Logo from "../assets/favicon.svg";
 
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+
+
 const Login = () => {
     const [username, setusername] = useState('');
     const [password, setPassword] = useState('');
@@ -22,16 +23,37 @@ const Login = () => {
         setLoading(true);
         await delay(500);
         
-        if (username !== "admin" || password !== "admin") {
-        setShow(true);
-        }
         try {
             const response = await axios.post('http://localhost:3000/api/auth/login', { username, password });
-            console.log(response);
-            localStorage.setItem('token', response.data.token); // Guardar el token
-            navigate('/dashboard'); // Redirigir al dashboard
+
+            if (response.status === 200){
+                localStorage.setItem('token', response.data.token); // Guardar el token
+                navigate('/dashboard');
+            }
+
         } catch (error) {
-            setError('Invalid credentials');
+            let errorMsg;
+
+            if(error.response){
+                if(error.response.status === 401){
+                    errorMsg = 'Invalid credentials'
+                }
+                else if (error.response.status >= 500){
+                    errorMsg = 'Server error. Please try again later.'
+                }
+                else{
+                    errorMsg = 'An ocurred. Please try again.'
+                }
+            }
+            else if(error.request){
+                errorMsg = 'No response from the server. Please check your connection'
+            }
+            else{
+                errorMsg = 'Error: ' + error.message;
+            }
+
+            setError(errorMsg);
+            setShow(true);
             console.log(error);
         }
     
@@ -43,83 +65,86 @@ const Login = () => {
     }
 
     return (
-        <div
-        className="sign-in__wrapper"
-        style={{ backgroundImage: `url(${BackgroundImage})` }}
-        >
+    <div
+    className="w-screen relative flex flex-col items-center justify-center h-screen bg-cover bg-center"
+    style={{ backgroundImage: `url(${BackgroundImage})`}}
+    >
         {/* Overlay */}
-        <div className="sign-in__backdrop"></div>
-        {/* Form */}
-        <Form className=" p-4  rounded" onSubmit={handleSubmit}>
-            {/* Header */}
-            <img
-            className=" mx-auto d-block mb-2"
-            src={Logo}
-            alt="logo"
-            />
+        <div className="absolute inset-0 bg-black opacity-50"></div>
 
-            {/* ALert */}
+        {/* Form */}
+        <form
+            className="relative z-10 p-6 bg-transparent rounded-lg shadow-md w-full max-w-md"
+            onSubmit={handleSubmit}
+        >
+            {/* Header */}
+            <img className="mx-auto mb-4 max-w-[72px]" src={Logo} alt="logo" />
+
+            {/* Alert */}
             {show ? (
-            <Alert
-                className="mb-2"
-                variant="danger"
-                onClose={() => setShow(false)}
-                dismissible
-            >
-                Incorrect username or password.
-            </Alert>
+            <div className="mb-4 bg-red-400 text-white text-sm px-4 py-2 rounded-lg flex justify-between items-center">
+                <span>{error}</span>
+                <button
+                type="button"
+                className="text-white"
+                onClick={() => setShow(false)}
+                >
+                &times;
+                </button>
+            </div>
             ) : (
             <div />
             )}
-            <Form.Group className="mt-5 mb-2 opacity-50" controlId="username">
-                <Form.Control
-                    className="rounded-pill custom-input"
-                    type="text"
-                    value={username}
-                    placeholder="Username"
-                    onChange={(e) => setusername(e.target.value)}
-                    required
-                />
-            </Form.Group>
-            <Form.Group
-            className="mb-2 opacity-50"
-            controlId="password"
-            >
-                <Form.Control
-                    className="rounded-pill custom-input"
-                    type="password"
-                    value={password}
-                    placeholder="Password"
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                />
-            </Form.Group>
 
+            {/* Username Input */}
+            <div className="mb-4 opacity-75">
+            <input
+                className="w-full px-4 py-2 text-sm border border-gray-300 rounded-full focus:outline-none focus:ring focus:border-orange-500"
+                type="text"
+                value={username}
+                placeholder="Username"
+                onChange={(e) => setusername(e.target.value)}
+                required
+            />
+            </div>
+
+            {/* Password Input */}
+            <div className="mb-4 opacity-75">
+            <input
+                className="w-full px-4 py-2 text-sm border border-gray-300 rounded-full focus:outline-none focus:ring focus:border-orange-500"
+                type="password"
+                value={password}
+                placeholder="Password"
+                onChange={(e) => setPassword(e.target.value)}
+                required
+            />
+            </div>
+
+            {/* Submit Button */}
             {!loading ? (
-            <Button
-                className="w-100 mt-5 rounded-pill py-2"
-                variant="primary"
+            <button
+                className="w-full mt-4 py-2 bg-orange-400 text-white rounded-full hover:bg-orange-600 focus:outline-none focus:ring"
                 type="submit"
             >
                 Log In
-            </Button>
+            </button>
             ) : (
-            <Button
-                className="w-100 mt-5"
-                variant="orange"
+            <button
+                className="w-full mt-4 py-2 bg-orange-500 text-white rounded-full"
                 type="submit"
                 disabled
             >
                 Logging In...
-            </Button>
+            </button>
             )}
-            <div className="d-grid justify-content-end"></div>
-        </Form>
-        {/* Footer */}
-        <div className="w-100 mb-2 position-absolute bottom-0 start-50 translate-middle-x text-white text-center">
+
+           
+        </form>
+         {/* Footer */}
+        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 text-center text-white mb-4">
             Made by Francisco C | &copy;2024
         </div>
-        </div>
+    </div>
     );
 };
 
