@@ -1,6 +1,6 @@
-import { MoreVertical, ChevronLast, ChevronFirst } from "lucide-react"
+import { MoreVertical, ChevronLast, ChevronFirst } from "lucide-react";
 
-import { useContext, createContext, useState } from "react"
+import { useContext, createContext, useState } from "react";
 
 const SidebarContext = createContext()
 
@@ -8,15 +8,19 @@ export default function Sidebar({ children }) {
   const [expanded, setExpanded] = useState(true)
   
   return (
-    <aside className="h-screen">
-      <nav className="h-full flex flex-col bg-white border-r shadow-sm">
+    <aside className="h-screen bg-white">
+      <nav className="h-full flex flex-col border-r shadow-sm">
         <div className="p-4 pb-2 flex justify-between items-center">
+          <div>
+            {/*Empty DIV, bad practice, to add space*/}
+          </div>
+          {/* Logo */}
           <img
-            src="https://img.logoipsum.com/243.svg"
+            src="https://img.logoipsum.com/244.svg"
             className={`overflow-hidden transition-all ${
               expanded ? "w-32" : "w-0"
             }`}
-            alt=""
+            alt="Logo"
           />
           <button
             onClick={() => setExpanded((curr) => !curr)}
